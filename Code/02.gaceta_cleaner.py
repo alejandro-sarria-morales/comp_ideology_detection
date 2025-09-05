@@ -142,7 +142,6 @@ def process_pdf(file_path):
     info = extract_session_info(clean_text) 
     gaceta_numb = os.path.basename(file_path)[:-4]
     intervention_pairs = extract_headline_intervention_pairs(clean_text)
-    tokenized_interventions  = tokenize_intervention(intervention_pairs)
 
     return pd.DataFrame({
         "gaceta_numb": gaceta_numb, 
@@ -151,15 +150,14 @@ def process_pdf(file_path):
         "type": info[2], 
         "raw_text": raw_text,
         "clean_text": clean_text,
-        "intervention_pairs": [intervention_pairs],
-        "interventions": [tokenized_interventions]},
+        "intervention_pairs": [intervention_pairs]},
         index=[0])
 
 if __name__ == "__main__":
     folder = r"D:\Thesis\sessions\raw_files"
     destination = r"C:\Users\asarr\Documents\Projects\comp_ideology_detection\outputs\sessions.csv"
 
-    df = pd.DataFrame(columns=["id", "date", "chamber", "type", "raw_text", "clean_text", "intervention_pairs", "interventions"])
+    df = pd.DataFrame(columns=["id", "date", "chamber", "type", "raw_text", "clean_text", "intervention_pairs"])
 
     for file_name in tqdm(os.listdir(folder)):
         file_path = os.path.join(folder, file_name)
