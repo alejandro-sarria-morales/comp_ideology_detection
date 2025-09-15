@@ -120,21 +120,6 @@ def extract_headline_intervention_pairs(text):
 
     return pairs
 
-def tokenize_intervention(int_pairs):
-    tokenized_interventions = []
-    for _, intervention in int_pairs:
-        doc = nlp(intervention)
-        tokens = [
-            token.lemma_.lower()
-            for token in doc
-            if not token.is_stop
-            and not token.is_punct
-            and not token.like_num
-            and token.is_alpha
-        ]
-        tokenized_interventions.append(tokens)
-    return tokenized_interventions
-
 def process_pdf(file_path): 
     raw_text = extract_text_with_bold(file_path)
     clean_text = clean_raw_text(raw_text)
@@ -154,8 +139,8 @@ def process_pdf(file_path):
         index=[0])
 
 if __name__ == "__main__":
-    folder = r"D:\Thesis\sessions\raw_files"
-    destination = r"C:\Users\asarr\Documents\Projects\comp_ideology_detection\outputs\sessions.csv"
+    folder = r"D:/Thesis/sessions/raw_files" #change to relevant path
+    destination = r"../outputs/sessions.csv"
 
     df = pd.DataFrame(columns=["id", "date", "chamber", "type", "raw_text", "clean_text", "intervention_pairs"])
 
@@ -163,9 +148,7 @@ if __name__ == "__main__":
         file_path = os.path.join(folder, file_name)
         try:
             new_row = process_pdf(file_path)
-        except Exception as e:
-            print(f"error in file {file_name}")
-            print(e)
+        except:
             continue
         df = pd.concat([df, new_row], ignore_index=True)
 
