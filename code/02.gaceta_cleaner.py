@@ -67,6 +67,7 @@ def clean_raw_text(text):
     clean_text = re.sub(r"\n", " ", clean_text).strip()
     clean_text = re.sub(r"^.*?ACTA NÚMERO \d+ DE \d+", r"", clean_text, count=1, flags=re.DOTALL)[5:]
     clean_text = re.sub(r"\*b-.{0,3}-b\*", "", clean_text)
+    clean_text = re.sub("-\s", "", clean_text)
     return clean_text.strip().lower()
 
 def remove_header(text: str) -> str:

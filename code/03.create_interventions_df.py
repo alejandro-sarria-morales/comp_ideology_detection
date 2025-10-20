@@ -13,8 +13,9 @@ import shutil
 
 def get_names(url_lst):
     names = []
+    header = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"}
     for url in url_lst:
-        soup = bs(requests.get(url).content, 'html.parser')
+        soup = bs(requests.get(url, headers=header).content, 'html.parser')
         cat_groups = soup.find_all('div', {'class': 'mw-category-group'})
         for letter in cat_groups:
             people = letter.find_all('li')
@@ -132,7 +133,11 @@ missing_names = ['milene jarava díaz', 'germán rogelio rozo anís', 'jairo hum
                  'john édgar pérez rojas', 'álvaro leonel rueda caballero', 'olga beatriz gonzales correa', 'eduard giovanny sarmiento hidalgo', 'diógenes quintero amaya', 'juan pablo salazar',
                  'ermes pete vivas', 'libardo cruz casado', 'yamil hernando arana padauí', 'erick adrián velasco burbano', 'james hermenegildo mosquera torres', 'jorge méndez hernández',
                  'gersel luis pérez altamiranda', 'gilma díaz arias', 'jorge rodrigo tovar vélez', 'carolina giraldo botero', 'neyla ruiz correa', 'john jairo hoyos garcía',
-                 'élbert díaz lozano', 'mónica maría raigoza morales', 'milton hugo angulo viveros', 'henry fernando correal herrera', 'ángela patricia sánchez leal'
+                 'élbert díaz lozano', 'mónica maría raigoza morales', 'milton hugo angulo viveros', 'henry fernando correal herrera', 'ángela patricia sánchez leal', 'efraín torrado garcia',
+                 'plinio olano becerra', 'olga lucía suárez', 'francisco rojas birry', 'raul rueda maldonado', 'oswaldo arcos benavides', 'aquileo medina arteaga', ' ruby helena chagüi spath',
+                 'antonio eresmid sanguino páez', 'josé edilberto caicedo', 'jairo ortega samboni', 'didier alberto tavera amado', 'wilson gómez', 'josé edilberto caicedo', 'charles schultz navarro',
+                 'víctor velásquez reyes', 'alonso acosta osio', 'néstor homero cotrina', 'gema lópez', 'john sudarsky rosenbaum', 'édgar espíndola niño', 'edgar eulises torres murillo',
+                 'humberto builes correa', 'alvaro antonio ashton giraldo'
                  ]
 
 sen_names = clean_list(get_names(sen_urls))
@@ -145,15 +150,15 @@ sessions_df = pd.read_csv(sessions_path)
 
 if __name__== "__main__":
     #create chunks
-    chunk_size = 500
+    chunk_size = 100
     chunks = [sessions_df[i:i + chunk_size] for i in range(0, sessions_df.shape[0], chunk_size)]
     chunk_path = "../outputs/temp_chunks"
     os.mkdir(chunk_path)
 
     #process chunks
-    for chunk in tqdm(chunks, desc="Processing chunks", total=len(chunks), leave=True):
+    for i, chunk in tqdm(enumerate(chunks), desc="Processing chunks", total=len(chunks), leave=True):
         chunk_df = process_chunk(chunk)
-        chunk_file = os.path.join(chunk_path, f"chunk_{chunks.index(chunk)}.csv")
+        chunk_file = os.path.join(chunk_path, f"chunk_{i}.csv")
         chunk_df.to_csv(chunk_file, index=False)
 
     #join chunks
