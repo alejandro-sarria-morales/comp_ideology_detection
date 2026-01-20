@@ -4,12 +4,13 @@ ftfy==6.3.1
 joblib==1.5.1
 matplotlib==3.10.8
 nltk==3.9.1
-numpy<2
-pandas<3
+numpy==2.4.1
+pandas==2.3.3
 pymupdf==1.26.7
 rapidfuzz==3.14.3
 Requests==2.32.5
 seaborn==0.13.2
+selenium==4.40.0
 sentence_transformers==5.1.0
 spacy==3.8.7
 torch==2.8.0
