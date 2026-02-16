@@ -116,9 +116,6 @@ p4 <- df |>
 combined <- gridExtra::grid.arrange(p1, p2, p3, p4, ncol = 2,
                                      top = "Speech Length — US 113th Congress")
 
-ggsave("outputs/speech_length_distribution_113.png", combined,
-       width = 14, height = 10, dpi = 200)
-cat("\nFigure saved to outputs/speech_length_distribution_113.png\n")
 
 # Topics -----
 topic_info <- read_csv("outputs/topic_info.csv")|> 
@@ -195,9 +192,6 @@ p_topic <- ggplot(top10, aes(x = reorder(Name, n), y = n)) +
   theme_minimal() +
   theme(plot.margin = margin(5, 40, 5, 5))
 
-ggsave("outputs/topic_distribution_113.png", p_topic,
-       width = 12, height = 6, dpi = 200)
-cat("\nFigure saved to outputs/topic_distribution_113.png\n")
 
 # Section 3: Topics by party ----
 cat("\n=========================================================\n")
@@ -226,6 +220,7 @@ print(as.data.frame(topic_party_pct |> slice_head(n = 20)), row.names = FALSE)
 top10_topics <- topic_freq |> slice_head(n = 10) |> pull(topic)
 
 p_topic_party <- topic_party_pct |>
+  filter(!party == "I") |> 
   filter(topic %in% top10_topics) |>
   ggplot(aes(x = reorder(Name, pct), y = pct, fill = party)) +
   geom_col(position = "dodge") +
@@ -239,6 +234,7 @@ p_topic_party <- topic_party_pct |>
 
 # Heatmap: topic x party
 p_heatmap <- topic_party_pct |>
+  filter(!party == "I") |> 
   filter(topic %in% top10_topics) |>
   ggplot(aes(x = party, y = reorder(Name, pct), fill = pct)) +
   geom_tile(color = "white") +
@@ -288,6 +284,24 @@ p_speakers <- speakers_per_topic |>
   theme_minimal() +
   theme(plot.margin = margin(5, 30, 5, 5))
 
+# Unique speakers per topic by party ----
+speakers_per_topic_party <- df_filtered |>
+  filter(!party == "I") |>
+  group_by(topic, Name, party) |>
+  summarise(n_speakers = n_distinct(speakerid), .groups = "drop")
+
+p_speakers_party <- speakers_per_topic_party |>
+  filter(topic %in% top10_topics) |>
+  ggplot(aes(x = reorder(Name, n_speakers), y = n_speakers, fill = party)) +
+  geom_col(position = "dodge", width = 0.7) +
+  scale_fill_manual(values = party_colors) +
+  coord_flip() +
+  labs(x = NULL, y = "Unique speakers",
+       title = "Unique Speakers per Topic by Party — Top 10 Topics",
+       fill = "Party") +
+  theme_minimal() +
+  theme(plot.margin = margin(5, 30, 5, 5))
+
 
 # Speaker topic breadth ----
 cat("\n=========================================================\n")
@@ -308,4 +322,42 @@ p_breadth <- ggplot(speaker_breadth, aes(x = n_topics)) +
   labs(x = "Number of unique topics", y = "Number of speakers",
        title = "Distribution of Topic Breadth per Speaker") +
   theme_minimal()
+
+# Speaker topic breadth by party ----
+p_breadth_party <- speaker_breadth |>
+  filter(!party == "I") |>
+  ggplot(aes(x = n_topics, fill = party)) +
+  geom_histogram(binwidth = 1, color = "white", linewidth = 0.2) +
+  geom_vline(data = speaker_breadth |> filter(!party == "I") |> group_by(party) |>
+               summarise(m = mean(n_topics)), aes(xintercept = m),
+             color = "red", linetype = "dashed") +
+  geom_vline(data = speaker_breadth |> filter(!party == "I") |> group_by(party) |>
+               summarise(m = median(n_topics)), aes(xintercept = m),
+             color = "orange", linetype = "dashed") +
+  scale_fill_manual(values = party_colors) +
+  facet_wrap(~ party) +
+  labs(x = "Number of unique topics", y = "Number of speakers",
+       title = "Distribution of Topic Breadth per Speaker by Party") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# render all plots:
+p1
+p3
+p_topic
+p_topic_party
+p_speakers
+p_heatmap
+p_acaparation
+p_speakers
+p_speakers_party
+p_breadth
+p_breadth_party
+
+## Notes on topics
+# some topics have weird representation but are interesting. Here are some notes:
+# - Topic 1: remembrance, grief, service
+# - Topic 20: Financial regulation
+# - Topic 42: Spending and fiscal responsibility
+# - Topic 45: FAA funding
 
